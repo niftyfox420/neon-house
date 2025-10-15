@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Jackpot Fury — Neon House</title>
+  <style>
+:root{
+  --bg:#0a0f1e; --bg2:#0c1328; --panel:#111a39; --text:#e8f0ff; --muted:#a9b6d0;
+  --border:rgba(255,255,255,.12); --accent:#00e6ff; --accent2:#9dff00; --cta:#12f08a;
+}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;color:var(--text);
+  background:linear-gradient(180deg,var(--bg),var(--bg2))}
+.container{max-width:1220px;margin:0 auto;padding:20px}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(12,18,40,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.topbar .row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
+.logo{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#001018;font-weight:900}
+.pill{border:1px solid var(--border);background:rgba(255,255,255,.06);border-radius:999px;padding:6px 10px}
+.btn{border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001018;border-color:transparent}
+.grid{display:grid;grid-template-columns:1fr 330px;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px}
+.slot{position:relative;border-radius:16px;padding:14px;background:radial-gradient(120% 160% at 10% 10%, #1a2a5b 0%, #101b3b 40%, #0b1226 100%);border:1px solid #203060;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06), inset 0 20px 80px rgba(0,0,0,.35)}
+.display{position:relative;margin:8px 0;border-radius:12px;border:1px solid #2a3b74;padding:10px;background:linear-gradient(180deg,#0e1531,#0a1026);box-shadow:inset 0 10px 50px rgba(0,0,0,.6)}
+.reels{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:210px}
+.reel{overflow:hidden;border-radius:10px;border:1px solid #2a3b74;background:radial-gradient(100% 120% at 50% 0%, #0c1638, #0a1126)}
+.strip{display:flex;flex-direction:column;transition:transform 1.2s cubic-bezier(.2,.9,.2,1);will-change:transform}
+.cell{height:70px;display:grid;place-items:center;font-size:34px;filter:drop-shadow(0 0 10px rgba(0,230,255,.35))}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px}
+.num{min-width:40px;text-align:center;font-weight:800}
+.small{font-size:12px;opacity:.85}
+.lines{position:absolute;inset:10px;pointer-events:none}
+dialog.modal{border:none;border-radius:16px;background:rgba(12,18,40,.95);color:var(--text);backdrop-filter:blur(10px);padding:0;width:min(520px,94vw)}
+.modal .head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 14px}
+.modal .body{padding:14px;display:grid;gap:12px}
+.audiobar{position:sticky;bottom:0;z-index:40;background:rgba(12,18,40,.92);backdrop-filter:blur(10px);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:8px 16px;margin-top:14px}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="row">
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="logo">NH</div><div><strong>Jackpot Fury</strong><div style="font-size:12px;opacity:.75">5×3 • 25 Lines • Free Games • Jackpot Wheel</div></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div class="pill">Balance: <strong id="walletCredits">—</strong></div>
+        <button class="btn primary" id="openAddFunds">Add Funds</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container grid">
+    <section class="panel">
+      <div class="slot">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div class="pill">Credits: <strong id="credits">—</strong></div>
+          <div class="pill">Jackpots: <strong id="jackpots">—</strong></div>
+        </div>
+        <div class="display">
+          <div class="reels" id="reels">
+            <div class="reel"><div class="strip" id="r0"></div></div>
+            <div class="reel"><div class="strip" id="r1"></div></div>
+            <div class="reel"><div class="strip" id="r2"></div></div>
+            <div class="reel"><div class="strip" id="r3"></div></div>
+            <div class="reel"><div class="strip" id="r4"></div></div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="pill">Lines: <strong>25</strong></div>
+            <div class="pill">Bet/Line:
+              <button class="btn" id="betMinus">−</button>
+              <span class="num" id="bet">1</span>
+              <button class="btn" id="betPlus">+</button>
+            </div>
+            <div class="pill">Total Bet: <strong id="total">25</strong></div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center">
+            <button class="btn primary" id="spin">SPIN</button>
+            <button class="btn" id="auto">Auto</button>
+          </div>
+        </div>
+
+        <div class="small" id="status" style="margin-top:8px;min-height:18px">&nbsp;</div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h3 style="margin:0 0 6px">Paytable</h3>
+      <div class="small">Wild = 🌀 (substitutes all except Scatter ⭐ and Coin 💰)</div>
+      <div class="small">Scatter ⭐: 3+ anywhere → 10 Free Games @ ×2; retrigger +5</div>
+      <div class="small">Coins 💰×3 → Jackpot Wheel (Mini/Minor/Major/Grand)</div>
+      <table style="border-collapse:collapse;width:100%;margin-top:8px">
+        <thead><tr><th>Symbol</th><th>3</th><th>4</th><th>5</th></tr></thead>
+        <tbody>
+          <tr><td>7️⃣</td><td>10×</td><td>50×</td><td>200×</td></tr>
+          <tr><td>💎</td><td>8×</td><td>30×</td><td>120×</td></tr>
+          <tr><td>🔔</td><td>6×</td><td>20×</td><td>80×</td></tr>
+          <tr><td>A/K/Q/J/10</td><td>3×</td><td>10×</td><td>40×</td></tr>
+        </tbody>
+      </table>
+
+      <div class="panel" style="margin-top:10px;padding:10px">
+        <strong>Jackpot Wheel</strong>
+        <div class="small">Mini 20× • Minor 50× • Major 200× • Grand 1000× (of total bet)</div>
+        <button class="btn" id="infoTest" style="margin-top:8px">Test: Spin Wheel (dev)</button>
+      </div>
+    </aside>
+  </div>
+
+  <dialog id="freeModal" class="modal">
+    <div class="head"><strong>Free Games!</strong><button class="btn" id="closeFree">✕</button></div>
+    <div class="body">
+      <div>10 free games at ×2 multiplier. Scatters retrigger +5.</div>
+      <button class="btn primary" id="startFree">Start</button>
+    </div>
+  </dialog>
+
+  <dialog id="wheelModal" class="modal">
+    <div class="head"><strong>Jackpot Wheel</strong><button class="btn" id="closeWheel">✕</button></div>
+    <div class="body" style="text-align:center">
+      <canvas id="wheel" width="360" height="360" style="max-width:100%"></canvas>
+      <div id="wheelResult" style="margin-top:8px"></div>
+      <button class="btn primary" id="spinWheel">SPIN</button>
+    </div>
+  </dialog>
+
+  <dialog id="addFunds" class="modal">
+    <div class="head"><strong>Add Funds</strong><button class="btn" id="closeAdd">✕</button></div>
+    <div class="body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" data-add="100">+100</button>
+        <button class="btn" data-add="500">+500</button>
+        <button class="btn" data-add="1000">+1000</button>
+        <button class="btn" data-add="5000">+5000</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <input id="customAmount" type="number" placeholder="Custom amount" min="1" style="flex:1;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);padding:10px">
+        <button class="btn primary" id="addCustom">Add</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="audiobar">
+    <div>Theme</div>
+    <audio id="siteAudio" preload="metadata" controls style="width:70%">
+      <source src="Option A.mp4" type="audio/mp4">
+      <source src="Option A.mp3" type="audio/mpeg">
+      <source src="Option A.ogg" type="audio/ogg">
+    </audio>
+  </div>
+
+<script>
+// ===== Wallet & audio =====
+const LS_BAL='neon_house_credits_v1';
+let credits=parseInt(localStorage.getItem(LS_BAL)||'1000',10);
+function setCredits(v){credits=Math.max(0,v|0); localStorage.setItem(LS_BAL,String(credits)); document.getElementById('walletCredits').textContent=String(credits); document.getElementById('credits').textContent=String(credits);}
+setCredits(credits);
+document.getElementById('openAddFunds').onclick=()=>document.getElementById('addFunds').showModal();
+document.getElementById('closeAdd').onclick=()=>document.getElementById('addFunds').close();
+Array.from(document.querySelectorAll('[data-add]')).forEach(b=> b.addEventListener('click',()=>{setCredits(credits+parseInt(b.dataset.add,10)); document.getElementById('addFunds').close();}));
+document.getElementById('addCustom').onclick=()=>{const v=parseInt(document.getElementById('customAmount').value,10); if(v>0){setCredits(credits+v); document.getElementById('addFunds').close();}};
+
+// ===== Game Data =====
+const betEl=document.getElementById('bet'), totalEl=document.getElementById('total'), statusEl=document.getElementById('status');
+let betPerLine=1, LINES=25, spinning=false, auto=false;
+const spinBtn=document.getElementById('spin'), autoBtn=document.getElementById('auto');
+
+// Symbols
+const WILD='🌀', SCAT='⭐', COIN='💰';
+const LOWS=['A','K','Q','J','10'];
+const HIGHS=['7️⃣','💎','🔔'];
+// paytable: symbol -> [3,4,5] line wins (times bet per line)
+const PAY={
+  '7️⃣':[10,50,200],
+  '💎':[8,30,120],
+  '🔔':[6,20,80],
+  'A':[3,10,40], 'K':[3,10,40], 'Q':[3,10,40], 'J':[3,10,40], '10':[3,10,40],
+  [WILD]:[0,0,0]
+};
+// reel strips (weighted)
+function strip(){ const base=[...HIGHS, ...LOWS, ...LOWS, ...LOWS, WILD, SCAT, COIN, ...LOWS, ...HIGHS, ...LOWS, COIN]; 
+  // duplicate for length
+  const arr=[]; for(let i=0;i<4;i++) arr.push(...base); return shuffle(arr);
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]];} return a; }
+const reels=[strip(),strip(),strip(),strip(),strip()];
+
+// Build UI strips
+const strips=[document.getElementById('r0'),document.getElementById('r1'),document.getElementById('r2'),document.getElementById('r3'),document.getElementById('r4')];
+function paint(){ for(let i=0;i<5;i++){ const el=strips[i]; el.innerHTML=''; const long=[...reels[i],...reels[i],...reels[i]]; long.forEach(s=>{const d=document.createElement('div'); d.className='cell'; d.textContent=s; el.appendChild(d);}); el.style.transform='translateY(0)'; } }
+paint();
+
+// 25 line definitions for 5x3 grid
+const L=[[0,0,0,0,0],[1,1,1,1,1],[2,2,2,2,2],[0,1,2,1,0],[2,1,0,1,2],
+         [0,0,1,0,0],[2,2,1,2,2],[1,0,0,0,1],[1,2,2,2,1],[0,1,1,1,0],
+         [2,1,1,1,2],[0,2,2,2,0],[2,0,0,0,2],[0,0,2,0,0],[2,2,0,2,2],
+         [1,0,1,2,1],[1,2,1,0,1],[0,1,0,1,2],[2,1,2,1,0],[0,2,1,0,1],
+         [2,0,1,2,1],[0,1,2,2,2],[2,1,0,0,0],[1,1,0,1,2],[1,1,2,1,0]];
+
+// HUD
+function upd(){ betEl.textContent=betPerLine; totalEl.textContent=betPerLine*LINES; document.getElementById('jackpots').textContent='Mini 20×  Minor 50×  Major 200×  Grand 1000×'; }
+upd();
+document.getElementById('betMinus').onclick=()=>{betPerLine=Math.max(1,betPerLine-1);upd();};
+document.getElementById('betPlus').onclick=()=>{betPerLine=Math.min(50,betPerLine+1);upd();};
+
+// Spin
+function canSpin(){ return !spinning && credits >= betPerLine*LINES; }
+function stops(){ return [0,1,2,3,4].map(i=>(Math.random()*reels[i].length)|0); }
+function gridAt(st){ const g=[[],[],[]]; for(let x=0;x<5;x++){ const b=reels[x],n=b.length; const a=st[x]%n, m=(a+1)%n, t=(a+2)%n; g[0][x]=b[a]; g[1][x]=b[m]; g[2][x]=b[t]; } return g; }
+
+function symbolAt(g,row,col){ return g[row][col]; }
+function evalLines(g){
+  let pay=0, detail=[]; let scat=0, coins=0;
+  // count scatters/coins anywhere
+  for(let r=0;r<3;r++) for(let c=0;c<5;c++){ if(g[r][c]===SCAT) scat++; if(g[r][c]===COIN) coins++; }
+  // line wins (left to right)
+  for(let i=0;i<L.length;i++){
+    const rows=L[i]; let first=null; let count=0;
+    for(let c=0;c<5;c++){
+      const sym=g[rows[c]][c];
+      if(sym===SCAT||sym===COIN) break;
+      if(c===0){ first=sym===WILD?null:sym; count=1; }
+      else{
+        const ok = (sym===first) || (sym===WILD) || (first===null && sym!==SCAT && sym!==COIN);
+        if(!ok) break;
+        if(first===null && sym!==WILD) first=sym;
+        count++;
+      }
+    }
+    if(first && PAY[first]){
+      if(count>=3){
+        const p=PAY[first][count-3]*betPerLine;
+        if(p>0){ pay+=p; detail.push(first+' x'+count+' ×'+PAY[first][count-3]); }
+      }
+    }
+  }
+  return {pay, detail, scat, coins};
+}
+
+function animateTo(st){
+  for(let i=0;i<5;i++){
+    const base=reels[i].length, el=strips[i];
+    const vis=st[i]+base;
+    const tr=-(vis-1)*70;
+    const extra=(3+i)*base+((Math.random()*base)|0);
+    el.style.transition='transform 1.2s cubic-bezier(.2,.9,.2,1)';
+    requestAnimationFrame(()=>{ el.style.transform='translateY('+(tr-extra*70)+'px)'; });
+    setTimeout(()=>{ el.style.transition='none'; el.style.transform='translateY('+tr+'px)'; },1220+i*40);
+  }
+}
+
+let freeGames=0, freeMult=2;
+
+function doSpin(){
+  if(!canSpin()){ statusEl.textContent='Not enough credits. Add funds or lower bet.'; return; }
+  spinning=true; spinBtn.disabled=autoBtn.disabled=true; statusEl.textContent='Spinning…';
+  const totalBet= freeGames>0 ? 0 : betPerLine*LINES;
+  if(totalBet>0){ setCredits(credits-totalBet); }
+  const st=stops(); animateTo(st);
+  setTimeout(()=>{
+    const g=gridAt(st);
+    const res=evalLines(g);
+    let win=res.pay;
+    let msgs=[];
+    if(res.scat>=3){
+      // free game trigger only in paid games
+      if(freeGames===0){
+        freeGames+=10;
+        document.getElementById('freeModal').showModal();
+      }else{
+        freeGames+=5; msgs.push('Retrigger +5');
+      }
+    }
+    // Jackpot wheel trigger
+    if(res.coins>=3){
+      document.getElementById('wheelModal').showModal();
+    }
+    if(freeGames>0){ win = Math.floor(win*freeMult); msgs.push('Free Game ×'+freeMult); freeGames--; }
+    if(win>0){ setCredits(credits+win); }
+    const parts=[];
+    if(win>0) parts.push('Win +'+win);
+    if(res.detail.length) parts.push(res.detail.join(' · '));
+    if(freeGames>0) parts.push('Free games left: '+freeGames);
+    statusEl.textContent= parts.join(' — ') || 'No win.';
+    spinning=false; spinBtn.disabled=autoBtn.disabled=false;
+    if(auto) setTimeout(doSpin,360);
+  },1300);
+}
+
+document.getElementById('spin').onclick=doSpin;
+document.getElementById('auto').onclick=()=>{ auto=!auto; autoBtn.classList.toggle('primary',auto); autoBtn.textContent=auto?'Auto: ON':'Auto'; if(auto && !spinning) doSpin(); };
+
+// Free games modal
+document.getElementById('closeFree').onclick=()=>document.getElementById('freeModal').close();
+document.getElementById('startFree').onclick=()=>document.getElementById('freeModal').close();
+
+// Jackpot wheel
+const wheelCanvas=document.getElementById('wheel'); const ctx=wheelCanvas.getContext('2d');
+const wedges=[['MINI',20],['MINOR',50],['MAJOR',200],['MINI',20],['MINOR',50],['MAJOR',200],['GRAND',1000],['MINI',20]];
+function drawWheel(angle=0){
+  const R=wheelCanvas.width/2; ctx.clearRect(0,0,wheelCanvas.width,wheelCanvas.height);
+  for(let i=0;i<wedges.length;i++){
+    const a0=angle+i*(2*Math.PI/wedges.length), a1=angle+(i+1)*(2*Math.PI/wedges.length);
+    ctx.beginPath(); ctx.moveTo(R,R); ctx.arc(R,R,R-4,a0,a1); ctx.closePath();
+    ctx.fillStyle= i%2? '#1e316d' : '#152552'; ctx.fill(); ctx.strokeStyle='#3a55a5'; ctx.stroke();
+    ctx.save(); ctx.translate(R,R); ctx.rotate((a0+a1)/2); ctx.fillStyle='#e8f0ff'; ctx.font='bold 16px system-ui'; ctx.textAlign='center';
+    ctx.fillText(wedges[i][0]+' ×'+wedges[i][1], R-80, 6); ctx.restore();
+  }
+  // pointer
+  ctx.fillStyle='#12f08a'; ctx.beginPath(); ctx.moveTo(R,8); ctx.lineTo(R-10,28); ctx.lineTo(R+10,28); ctx.closePath(); ctx.fill();
+}
+drawWheel();
+function resolveWheel(finalAngle){
+  const slice=2*Math.PI/wedges.length;
+  let idx = Math.floor(((2*Math.PI - (finalAngle%(2*Math.PI))) / slice)) % wedges.length;
+  const prize=wedges[idx]; // [name, mult]
+  const totalBet=betPerLine*LINES;
+  const win= totalBet * prize[1];
+  setCredits(credits+win);
+  document.getElementById('wheelResult').textContent='Jackpot: '+prize[0]+' ×'+prize[1]+' → +'+win;
+}
+document.getElementById('spinWheel').onclick=()=>{
+  let a=0, v=0.5+Math.random()*0.5; const friction=0.985;
+  function tick(){
+    a+=v; v*=friction;
+    drawWheel(a);
+    if(v>0.005) requestAnimationFrame(tick);
+    else{ resolveWheel(a); }
+  }
+  requestAnimationFrame(tick);
+};
+document.getElementById('closeWheel').onclick=()=>document.getElementById('wheelModal').close();
+document.getElementById('infoTest').onclick=()=>document.getElementById('wheelModal').showModal();
+</script>
+</body>
+</html>
