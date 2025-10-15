@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Baccarat — Neon House</title>
+  <style>
+:root{
+  --bg:#070b16; --bg2:#0e1730; --text:#e6f1ff; --muted:#b6c3d6;
+  --accent:#00e6ff; --accent2:#9dff00; --card:rgba(255,255,255,0.06);
+  --cardBorder:rgba(255,255,255,0.16); --shadow:0 12px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica Neue,Arial,sans-serif;color:var(--text);
+  background:radial-gradient(1000px 600px at 20% 0%, #102046 0%, transparent 60%),
+             radial-gradient(900px 700px at 80% 40%, #111f4a 0%, transparent 60%),
+             linear-gradient(180deg,var(--bg),var(--bg2)); min-height:100%}
+a{color:inherit}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#001018;font-weight:900;box-shadow:var(--shadow)}
+.title{display:flex;flex-direction:column}
+.title h1{font-size:22px;margin:0;letter-spacing:.6px}
+.title small{opacity:.75}
+nav{display:flex;gap:10px;flex-wrap:wrap}
+.btn{appearance:none;border:1px solid var(--cardBorder);background:var(--card);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}
+.btn.primary{border-color:transparent;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001018}
+.btn:active{transform:translateY(1px)}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:center}
+.heroCard{background:var(--card);border:1px solid var(--cardBorder);border-radius:18px;box-shadow:var(--shadow);padding:22px}
+.hero h2{font-size:30px;margin:0 0 10px;letter-spacing:.5px}
+.hero p{opacity:.9;margin:0}
+.media{display:flex;align-items:center;gap:12px;margin-top:10px}
+.pill{background:var(--card);border:1px solid var(--cardBorder);border-radius:999px;padding:6px 10px;display:flex;align-items:center;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+.card{background:var(--card);border:1px solid var(--cardBorder);border-radius:18px;box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:12px;min-height:170px}
+.card h3{margin:0 0 6px}
+.badge{font-size:12px;opacity:.8;border:1px solid var(--cardBorder);padding:2px 8px;border-radius:999px;width:max-content}
+.muted{color:var(--muted)}
+footer{opacity:.7;text-align:center;margin:24px 0 8px;font-size:13px}
+@media (max-width: 1000px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.col{background:var(--card);border:1px solid var(--cardBorder);border-radius:16px;padding:14px}
+.cardchip{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:19px;border:1px solid var(--cardBorder);background:var(--card)}
+.bacc-spot{display:flex;gap:8px;align-items:center}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">NH</div>
+        <div class="title"><h1>Baccarat</h1><small>Six‑deck shoe</small></div>
+      </div>
+      <nav>
+        <a class="btn" href="index.html">Home</a>
+      </nav>
+    </header>
+
+    <div class="row" style="margin-bottom:8px">
+      <div class="pill">Credits: <strong id="baccCredits">—</strong></div>
+      <div class="pill">Bet: <button class="btn" id="bBetMinus">−</button><span class="num" id="bBet">10</span><button class="btn" id="bBetPlus">+</button></div>
+      <div class="pill">On: <button class="btn" id="betPlayer">Player</button><button class="btn" id="betBanker">Banker</button><button class="btn" id="betTie">Tie</button></div>
+      <button class="btn primary" id="bDeal">Deal</button>
+    </div>
+    <div class="row">
+      <div class="col" style="flex:1">
+        <div class="bacc-spot"><strong>Player</strong> — <span id="pTotal">0</span></div>
+        <div id="pHand" class="row" style="margin-top:8px"></div>
+      </div>
+      <div class="col" style="flex:1">
+        <div class="bacc-spot"><strong>Banker</strong> — <span id="bTotal">0</span></div>
+        <div id="bHand" class="row" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <div class="small" id="baccStatus" style="margin-top:8px;min-height:18px">&nbsp;</div>
+
+    <footer>© 2025 Neon House — Showcase</footer>
+  </div>
+
+<script>
+  const $=(s,c=document)=>c.querySelector(s), $$=(s,c=document)=>Array.from(c.querySelectorAll(s));
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const LS_KEY='neon_house_credits_v1';
+  let credits=parseInt(localStorage.getItem(LS_KEY)||'1000',10);
+  function setCredits(v){credits=Math.max(0,v|0);localStorage.setItem(LS_KEY,String(credits)); document.getElementById('baccCredits').textContent=String(credits);}
+  setCredits(credits);
+
+  let bBet=10; let bSel='PLAYER';
+  document.getElementById('bBet').textContent=bBet; document.getElementById('baccCredits').textContent=credits;
+  document.getElementById('bBetMinus').onclick=()=>{bBet=clamp(bBet-5,5,500); document.getElementById('bBet').textContent=bBet;};
+  document.getElementById('bBetPlus').onclick=()=>{bBet=clamp(bBet+5,5,500); document.getElementById('bBet').textContent=bBet;};
+  document.getElementById('betPlayer').onclick=()=>{bSel='PLAYER'; document.getElementById('baccStatus').textContent='Bet on Player';};
+  document.getElementById('betBanker').onclick=()=>{bSel='BANKER'; document.getElementById('baccStatus').textContent='Bet on Banker';};
+  document.getElementById('betTie').onclick=()=>{bSel='TIE'; document.getElementById('baccStatus').textContent='Bet on Tie';};
+
+  const ranks=['A','2','3','4','5','6','7','8','9','10','J','Q','K']; const suits=['♠','♥','♦','♣'];
+  function newShoe(){ let shoe=[]; for(let d=0; d<6; d++){ suits.forEach(S=>ranks.forEach(R=>shoe.push(R+S))); } for(let i=shoe.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [shoe[i],shoe[j]]=[shoe[j],shoe[i]];} return shoe; }
+  function cardVal(card){ const r=card.slice(0,-1); if(r==='A') return 1; if(['10','J','Q','K'].includes(r)) return 0; return parseInt(r,10); }
+  let shoe=newShoe();
+  function draw(){ if(shoe.length<30) shoe=newShoe(); return shoe.pop(); }
+  function total(hand){ return hand.reduce((t,c)=> (t+cardVal(c))%10,0); }
+  function pill(card){ const d=document.createElement('div'); d.className='cardchip'; d.textContent=card; return d; }
+
+  function dealBacc(){
+    if(credits<bBet){ document.getElementById('baccStatus').textContent='Not enough credits. Lower bet.'; return; }
+    setCredits(credits-bBet);
+    const p=[draw(),draw()], b=[draw(),draw()];
+    let pt=total(p), bt=total(b);
+    if(pt<8 && bt<8){
+      if(pt<=5) p.push(draw());
+      if(bt<=5) b.push(draw());
+      pt=total(p); bt=total(b);
+    }
+    document.getElementById('pHand').innerHTML=''; document.getElementById('bHand').innerHTML=''; p.forEach(c=>document.getElementById('pHand').appendChild(pill(c))); b.forEach(c=>document.getElementById('bHand').appendChild(pill(c)));
+    document.getElementById('pTotal').textContent=pt; document.getElementById('bTotal').textContent=bt;
+
+    let outcome = (pt>bt)?'PLAYER':(pt<bt)?'BANKER':'TIE';
+    let win=0; if(bSel==='TIE'){ win = (outcome==='TIE')? bBet*8 : 0; }
+    else if(bSel===outcome){ win = bBet*2; }
+    if(win>0){ setCredits(credits+win); document.getElementById('baccStatus').textContent= outcome+' wins. +' + (win-bBet); }
+    else { document.getElementById('baccStatus').textContent= outcome+' wins.'; }
+  }
+  document.getElementById('bDeal').onclick=dealBacc;
+</script>
+</body>
+</html>
