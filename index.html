@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Neon House — Slots</title>
-  <meta name="description" content="Neon House — a demo casino landing with a built‑in 3×3 slot machine. For fun only; no real money." />
+  <meta name="description" content="Neon House — a showcase casino landing with a built‑in 3×3 slot machine." />
   <style>
     :root{
       --bg:#070b16;          /* deep space */
@@ -123,7 +123,7 @@
         <div class="logo">NH</div>
         <div class="title">
           <h1>Neon House</h1>
-          <small>Demo casino landing · for fun only</small>
+          <small>Showcase casino landing<\/small>
         </div>
       </div>
       <nav>
@@ -177,7 +177,7 @@
     </section>
 
     <footer>
-      For entertainment only · No real money gambling. Please play responsibly.
+      © 2025 Neon House — Showcase
     </footer>
   </div>
 
@@ -185,9 +185,7 @@
   <dialog id="slotModal">
     <div class="modalHeader">
       <strong>Slot Rush — 3×3</strong>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="small">For fun only</span>
-        <button class="btn" id="closeSlots">✕ Close</button>
+      <div style="display:flex;align-items:center;gap:8px"><button class="btn" id="closeSlots">✕ Close</button>
       </div>
     </div>
     <div class="modalBody">
@@ -197,7 +195,6 @@
           <div class="slot-cabinet">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
               <div class="pill">Credits: <strong id="credits" style="margin-left:6px">—</strong></div>
-              <button class="btn" id="resetCredits" title="Reset to 1000 demo credits">Reset</button>
             </div>
             
             <div class="slot-display" aria-live="polite">
@@ -411,7 +408,7 @@
     function canSpin(){ return !spinning && credits >= betPerLine*LINES; }
 
     function spinOnce(){
-      if(!canSpin()){ setStatus('Not enough credits. Lower bet or reset.'); return; }
+      if(!canSpin()){ setStatus('Not enough credits. Lower bet.'); return; }
       spinning = true; spinBtn.disabled = true; autoBtn.disabled = true;
       setStatus('Spinning…');
 
@@ -448,7 +445,7 @@
     // UI wiring
     $('#betMinus').addEventListener('click', ()=>{ betPerLine = clamp(betPerLine-1, 1, 50); updateHUD(); });
     $('#betPlus').addEventListener('click', ()=>{ betPerLine = clamp(betPerLine+1, 1, 50); updateHUD(); });
-    $('#resetCredits').addEventListener('click', ()=>{ credits = 1000; updateHUD(); setStatus('Credits reset to 1000.'); });
+     setStatus('Credits reset to 1000.'); });
     spinBtn.addEventListener('click', ()=> spinOnce());
     autoBtn.addEventListener('click', ()=>{ auto = !auto; autoBtn.classList.toggle('primary', auto); autoBtn.textContent = auto? 'Auto: ON':'Auto'; if(auto && !spinning) spinOnce(); });
 
@@ -466,3 +463,4 @@
   </script>
 </body>
 </html>
+
