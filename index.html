@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Neon House — Lobby</title>
+<style>
+:root{
+  --bg:#0a0f1e; --bg2:#0c1328; --panel:#111a39; --card:#141f45;
+  --text:#e8f0ff; --muted:#a9b6d0; --border:rgba(255,255,255,.12);
+  --accent:#00e6ff; --accent2:#9dff00; --cta:#12f08a; --danger:#ff3b6a;
+  --shadow:0 12px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
+  color:var(--text); background:linear-gradient(180deg,var(--bg),var(--bg2))}
+a{color:inherit;text-decoration:none}
+.container{max-width:1240px;margin:0 auto;padding:20px}
+.topbar{position:sticky;top:0;z-index:70;background:rgba(12,18,40,.9);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);}
+.topbar .row{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;gap:12px}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#001018;font-weight:900;box-shadow:var(--shadow)}
+.knav{display:flex;gap:10px;flex-wrap:wrap}
+.kbtn{border:1px solid var(--border);background:rgba(255,255,255,.06);padding:8px 12px;border-radius:12px;font-weight:700}
+.kbtn.active{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001018;border-color:transparent}
+.wallet{display:flex;gap:10px;align-items:center}
+.pill{border:1px solid var(--border);background:rgba(255,255,255,.06);border-radius:999px;padding:6px 10px}
+.btn{border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer}
+.btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#001018;border-color:transparent}
+.btn.ghost{background:transparent}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:center;margin:18px 0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:20px}
+.hero h2{font-size:30px;margin:0 0 10px}
+.hero p{margin:0;color:var(--muted)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.gcard{background:linear-gradient(180deg,#182457,#101b3c);border:1px solid var(--border);border-radius:14px;
+  padding:12px;display:flex;flex-direction:column;gap:10px;min-height:160px;transition:transform .08s ease}
+.gcard:hover{transform:translateY(-2px)}
+.gtitle{font-weight:900}
+.gmeta{font-size:12px;color:var(--muted)}
+footer{opacity:.75;text-align:center;padding:16px 0 24px}
+.audiobar{position:sticky;bottom:0;z-index:60;background:rgba(12,18,40,.92);backdrop-filter:blur(10px);
+  border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;padding:8px 16px}
+.audiobar .controls{display:flex;gap:8px;align-items:center}
+dialog.modal{border:none;border-radius:16px;background:rgba(12,18,40,.95);color:var(--text);backdrop-filter:blur(10px);padding:0;width:min(460px,94vw)}
+.modal .head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:12px 14px}
+.modal .body{padding:14px;display:grid;gap:12px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--border);background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{grid-template-columns:1fr}}
+@media (max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head><body>
+
+<div class="topbar">
+  <div class="row">
+    <div class="brand">
+      <div class="logo">NH</div>
+      <div><strong>Neon House</strong><div style="font-size:12px;opacity:.75">Showcase</div></div>
+    </div>
+    <div class="knav">
+      <a class="kbtn" href="index.html">Lobby</a>
+      <a class="kbtn" href="slot-rush.html">Slots</a>
+      <a class="kbtn" href="volts-vaults.html">High Volts</a>
+      <a class="kbtn" href="baccarat.html">Baccarat</a>
+    </div>
+    <div class="wallet">
+      <div class="pill">Balance: <strong id="walletCredits">—</strong></div>
+      <button class="btn primary" id="openAddFunds">Add Funds</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="addFunds" class="modal">
+  <div class="head"><strong>Add Funds</strong><button class="btn ghost" id="closeAdd">✕</button></div>
+  <div class="body">
+    <div class="chips">
+      <button class="chip" data-add="100">+100</button>
+      <button class="chip" data-add="500">+500</button>
+      <button class="chip" data-add="1000">+1000</button>
+      <button class="chip" data-add="5000">+5000</button>
+    </div>
+    <div style="display:flex;gap:8px">
+      <input id="customAmount" type="number" placeholder="Custom amount" min="1" style="flex:1;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);padding:10px">
+      <button class="btn primary" id="addCustom">Add</button>
+    </div>
+    <div class="gmeta">Demo wallet; balance is stored locally in your browser (no reset button).</div>
+  </div>
+</dialog>
+
+<div class="audiobar">
+  <div class="controls">
+    <button class="btn" id="toggleAudio">Play/Pause</button>
+    <div id="audioStatus" class="gmeta">Paused</div>
+  </div>
+  <audio id="siteAudio" preload="metadata" style="width:60%">
+    <source src="Option A.mp4" type="audio/mp4">
+    <source src="Option A.mp3" type="audio/mpeg">
+    <source src="Option A.ogg" type="audio/ogg">
+    Your browser does not support the audio tag.
+  </audio>
+</div>
+
+<div class="container">
+  <section class="hero">
+    <div class="card">
+      <h2>Cash Boost Weekend</h2>
+      <p>Try our originals and climb the leaderboard. Slots, high‑voltage reels, and classic Baccarat.</p>
+      <div class="tabs">
+        <a class="kbtn active" href="#">Lobby</a>
+        <a class="kbtn" href="slot-rush.html">Slots</a>
+        <a class="kbtn" href="volts-vaults.html">High Volts</a>
+        <a class="kbtn" href="baccarat.html">Table Games</a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="gmeta">Now Playing</div>
+      <div style="font-weight:800;font-size:18px;margin-top:6px">Option A — Theme</div>
+      <div class="gmeta">Audio bar sticks to the bottom and resumes across pages after you press play once.</div>
+    </div>
+  </section>
+
+  <div class="tabs"><span class="kbtn active">Originals</span><span class="kbtn">New</span><span class="kbtn">Popular</span></div>
+  <section class="grid">
+    <a class="gcard" href="slot-rush.html"><div class="gtitle">Slot Rush</div><div class="gmeta">3×3 · 5 lines · Balanced</div><div style="margin-top:auto"><span class="btn">Open</span></div></a>
+    <a class="gcard" href="volts-vaults.html"><div class="gtitle">Volts &amp; Vaults</div><div class="gmeta">3×3 · 5 lines · High‑volatility</div><div style="margin-top:auto"><span class="btn">Open</span></div></a>
+    <a class="gcard" href="baccarat.html"><div class="gtitle">Baccarat</div><div class="gmeta">Player / Banker / Tie · Six‑deck shoe</div><div style="margin-top:auto"><span class="btn">Open</span></div></a>
+  </section>
+  <footer>© 2025 Neon House — Showcase</footer>
+</div>
+
+<script>
+(function(){
+  const LS_BAL='neon_house_credits_v1';
+  const LS_AUDIO='neon_house_audio_v1';
+  const elBal=document.getElementById('walletCredits');
+  let credits=parseInt(localStorage.getItem(LS_BAL)||'1000',10);
+  function setCredits(v){credits=Math.max(0, v|0); localStorage.setItem(LS_BAL,String(credits)); if(elBal) elBal.textContent=String(credits);}
+  setCredits(credits);
+
+  const dlg=document.getElementById('addFunds');
+  const openBtn=document.getElementById('openAddFunds');
+  const closeBtn=document.getElementById('closeAdd');
+  if(openBtn && dlg){ openBtn.onclick=()=>dlg.showModal(); }
+  if(closeBtn && dlg){ closeBtn.onclick=()=>dlg.close(); }
+  const custom=document.getElementById('customAmount');
+  function addAmt(v){ setCredits(credits + v); if(dlg) dlg.close(); }
+  Array.from(document.querySelectorAll('[data-add]')).forEach(b=> b.addEventListener('click',()=> addAmt(parseInt(b.dataset.add,10))));
+  document.getElementById('addCustom')?.addEventListener('click',()=>{
+    const v=parseInt(custom.value,10); if(!isNaN(v) && v>0) addAmt(v);
+  });
+
+  // Audio
+  const audio=document.getElementById('siteAudio');
+  const tBtn=document.getElementById('toggleAudio');
+  const aStatus=document.getElementById('audioStatus');
+  if(audio){
+    const saved = JSON.parse(localStorage.getItem(LS_AUDIO)||'{}');
+    // resume only if same src
+    if(saved.src && audio.currentSrc && audio.currentSrc.indexOf(saved.src.split('/').pop())>=0 && !isNaN(saved.time)){ audio.currentTime = saved.time; }
+    function update(){ if(aStatus) aStatus.textContent = audio.paused? 'Paused' : 'Playing'; }
+    audio.addEventListener('play',update); audio.addEventListener('pause',update); audio.addEventListener('ended',update);
+    window.addEventListener('beforeunload',()=>{
+      localStorage.setItem(LS_AUDIO, JSON.stringify({src: audio.currentSrc, time: audio.currentTime}));
+    });
+    if(tBtn){ tBtn.addEventListener('click',async ()=>{ if(audio.paused){ try{ await audio.play(); }catch(e){ console.log('Autoplay blocked:', e); } } else { audio.pause(); } update(); }); }
+    audio.addEventListener('error',()=>{ if(aStatus) aStatus.textContent='Audio error'; });
+    update();
+  }
+  window.__NEON_WALLET__ = { get:()=>credits, set:setCredits };
+})();
+</script>
+
+</body></html>
